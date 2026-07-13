@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zekai AI - Yapay Zeka Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #ff69b4 0%, #ffb6d9 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(255, 105, 180, 0.2);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            width: 100%;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .chat-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mascot-card {
+            background: linear-gradient(135deg, #fff0f7 0%, #ffe4f0 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(255, 105, 180, 0.1);
+            border: 2px solid #ff69b4;
+        }
+
+        .mascot {
+            font-size: 6rem;
+            animation: bounce 2s infinite;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .mascot-card h3 {
+            color: #ff69b4;
+            margin-top: 1rem;
+        }
+
+        .mascot-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .chat-box {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(255, 105, 180, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 2px solid #ffb6d9;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 0.8rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, #ff69b4 0%, #ffb6d9 100%);
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .ai .message-content {
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+
+        .input-section {
+            padding: 1rem;
+            border-top: 2px solid #ffb6d9;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-section input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #ffb6d9;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            border-color: #ff69b4;
+        }
+
+        .input-section button {
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #ff69b4 0%, #ffb6d9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .input-section button:hover {
+            transform: scale(1.05);
+        }
+
+        .input-section button:active {
+            transform: scale(0.95);
+        }
+
+        .game-section {
+            background: linear-gradient(135deg, #fff0f7 0%, #ffe4f0 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(255, 105, 180, 0.1);
+            border: 2px solid #ff69b4;
+        }
+
+        .game-section h3 {
+            color: #ff69b4;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .tictactoe-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tictactoe-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            background: white;
+            border: 2px solid #ff69b4;
+            border-radius: 8px;
+            font-size: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .tictactoe-cell:hover {
+            background: #ffe4f0;
+            transform: scale(1.05);
+        }
+
+        .tictactoe-cell.x {
+            color: #ff69b4;
+        }
+
+        .tictactoe-cell.o {
+            color: #00a8cc;
+        }
+
+        .game-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .game-buttons button {
+            flex: 1;
+            padding: 0.6rem;
+            background: linear-gradient(135deg, #ff69b4 0%, #ffb6d9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: transform 0.2s;
+        }
+
+        .game-buttons button:hover {
+            transform: scale(1.05);
+        }
+
+        .game-status {
+            text-align: center;
+            color: #ff69b4;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            min-height: 1.5rem;
+        }
+
+        footer {
+            background: linear-gradient(135deg, #ffb6d9 0%, #ffc0cb 100%);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            box-shadow: 0 -4px 6px rgba(255, 105, 180, 0.1);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .chat-section {
+                order: 1;
+            }
+
+            .chat-box {
+                height: 400px;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .mascot {
+                font-size: 4rem;
+            }
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #ff69b4;
+            border-radius: 10px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #ffb6d9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🤖 Zekai AI</h1>
+        <p>Yapay Zeka Chatbot - Sohbet Et, Oyna, Öğren!</p>
+    </header>
+
+    <div class="container">
+        <div class="chat-section">
+            <div class="chat-box">
+                <div class="messages" id="messages">
+                    <div class="message ai">
+                        <div class="message-content">
+                            Merhaba! 👋 Ben Zekai AI. Benimle sohbet edebilir, Tic Tac Toe oynayabilir veya sorular sorabilirsin. Ne yapabilirim?
+                        </div>
+                    </div>
+                </div>
+                <div class="input-section">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        placeholder="Mesajını yazıp Enter'a bas..." 
+                        onkeypress="if(event.key==='Enter') sendMessage()"
+                    >
+                    <button onclick="sendMessage()">Gönder</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="mascot-card">
+                <div class="mascot">🎭</div>
+                <h3>Zekai</h3>
+                <p>Senin yapay zeka asistanın. Her şeyde yardımcı olmaya hazır!</p>
+            </div>
+
+            <div class="game-section">
+                <h3>🎮 Tic Tac Toe</h3>
+                <div class="game-status" id="gameStatus">Senin sıran (X)</div>
+                <div class="tictactoe-board" id="board">
+                    <div class="tictactoe-cell" onclick="playGame(0)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(1)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(2)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(3)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(4)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(5)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(6)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(7)"></div>
+                    <div class="tictactoe-cell" onclick="playGame(8)"></div>
+                </div>
+                <div class="game-buttons">
+                    <button onclick="resetGame()">🔄 Yeni Oyun</button>
+                    <button onclick="playGameEasy()">🤖 AI Oyna</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>🎬💻 © 2026 - Tüm Hakları Saklıdır. Nisanur SARI Kod Senaryoları.</p>
+    </footer>
+
+    <script>
+        // Zekai AI Cevapları
+        const responses = {
+            greetings: ['Merhaba! Nasıl yardımcı olabilirim?', 'Hey! 👋 Ne yapabilirim?', 'Selam! Sorularını almaya hazırım.'],
+            thanks: ['Rica ederim! 😊', 'Bir şey değil! Her zaman yardımcıyım.', 'Memnun oldum! Başka bir şey sorabilir misin?'],
+            jokes: [
+                'Neden bilgisayar doktor'a gitti? Çünkü virüsü vardı! 😄',
+                'Python yılan mı? Hayır, programlama dili! 🐍',
+                'AI\'nin rüyası var mı? Elektrik şarjı! ⚡'
+            ],
+            time: [`Saat şu anda: ${new Date().toLocaleTimeString('tr-TR')}`, 'Zamanı kontrol et! ⏰'],
+            date: [`Tarih: ${new Date().toLocaleDateString('tr-TR')}`, 'Bugünün tarihi: ${new Date().toLocaleDateString(\'tr-TR\')}'],
+            default: [
+                'İlginç bir soru! Biraz daha açıklayabilir misin?',
+                'Hmm, bu konuda daha fazla bilgi verirsen daha iyi yardımcı olabilirim.',
+                'Bunu düşünmeliyim... 🤔 Daha detaylı sorabilir misin?',
+                'Zekai olarak, bu benim bilgi tabanımda var! 🧠'
+            ]
+        };
+
+        function getAIResponse(message) {
+            const msg = message.toLowerCase().trim();
+
+            // Greeting
+            if (['merhaba', 'selam', 'hey', 'halo', 'hoş geldin'].some(w => msg.includes(w))) {
+                return responses.greetings[Math.floor(Math.random() * responses.greetings.length)];
+            }
+
+            // Thanks
+            if (['teşekkür', 'sağ ol', 'thanks', 'thank', 'rica ederim'].some(w => msg.includes(w))) {
+                return responses.thanks[Math.floor(Math.random() * responses.thanks.length)];
+            }
+
+            // Jokes
+            if (['şaka', 'mizah', 'gülüş', 'espri', 'joke'].some(w => msg.includes(w))) {
+                return responses.jokes[Math.floor(Math.random() * responses.jokes.length)];
+            }
+
+            // Time
+            if (['saat', 'zaman', 'time', 'now'].some(w => msg.includes(w))) {
+                return responses.time[0];
+            }
+
+            // Date
+            if (['tarih', 'bugün', 'date', 'today'].some(w => msg.includes(w))) {
+                return responses.date[0];
+            }
+
+            // XOX
+            if (['oyun', 'tic tac', 'xox', 'play', 'oyna'].some(w => msg.includes(w))) {
+                return 'Tic Tac Toe oynamak ister misin? Sağ tarafta oyun alanı var! 🎮';
+            }
+
+            // Name
+            if (['adın', 'kim', 'kimsin', 'who are', 'your name'].some(w => msg.includes(w))) {
+                return 'Ben Zekai AI! Nisanur SARI tarafından yapılmış bir yapay zeka asistanıyım. 🤖';
+            }
+
+            // Default
+            return responses.default[Math.floor(Math.random() * responses.default.length)];
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // User message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // AI response
+            setTimeout(() => {
+                const response = getAIResponse(message);
+                addMessage(response, 'ai');
+            }, 500);
+        }
+
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender}`;
+            messageElement.innerHTML = `<div class="message-content">${text}</div>`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Tic Tac Toe Game
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let currentPlayer = 'X';
+
+        function playGame(index) {
+            if (board[index] === '' && gameActive && currentPlayer === 'X') {
+                board[index] = 'X';
+                updateBoard();
+                
+                if (!checkGameEnd()) {
+                    currentPlayer = 'O';
+                    document.getElementById('gameStatus').textContent = 'AI düşünüyor...';
+                    setTimeout(aiMove, 800);
+                }
+            }
+        }
+
+        function aiMove() {
+            let availableMoves = board.map((val, idx) => val === '' ? idx : null).filter(val => val !== null);
+            
+            if (availableMoves.length > 0) {
+                let randomIndex = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                board[randomIndex] = 'O';
+                updateBoard();
+                
+                if (!checkGameEnd()) {
+                    currentPlayer = 'X';
+                    document.getElementById('gameStatus').textContent = 'Senin sıran (X)';
+                }
+            }
+        }
+
+        function updateBoard() {
+            const cells = document.querySelectorAll('.tictactoe-cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = board[index];
+                cell.classList.remove('x', 'o');
+                if (board[index] === 'X') cell.classList.add('x');
+                if (board[index] === 'O') cell.classList.add('o');
+            });
+        }
+
+        function checkGameEnd() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            for (let pattern of winPatterns) {
+                if (board[pattern[0]] && board[pattern[0]] === board[pattern[1]] && board[pattern[1]] === board[pattern[2]]) {
+                    gameActive = false;
+                    document.getElementById('gameStatus').textContent = 
+                        board[pattern[0]] === 'X' ? '🎉 Kazandın!' : '🤖 AI Kazandı!';
+                    return true;
+                }
+            }
+
+            if (!board.includes('')) {
+                gameActive = false;
+                document.getElementById('gameStatus').textContent = '🤝 Berabere!';
+                return true;
+            }
+
+            return false;
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            currentPlayer = 'X';
+            document.getElementById('gameStatus').textContent = 'Senin sıran (X)';
+            updateBoard();
+        }
+
+        function playGameEasy() {
+            resetGame();
+            addMessage('Tic Tac Toe oyununa başladık! 🎮 Senin sıran (X)', 'ai');
+        }
+    </script>
+</body>
+</html>
